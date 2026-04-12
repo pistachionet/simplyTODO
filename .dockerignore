@@ -1,0 +1,9 @@
+node_modules
+dist
+data
+.git
+.gitignore
+.env
+*.md
+.DS_Store
+fly.toml

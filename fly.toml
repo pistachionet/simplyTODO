@@ -1,0 +1,21 @@
+# See https://fly.io/docs/reference/configuration/
+
+app = "mindtodo"
+primary_region = "sjc"
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  DB_PATH = "/data/mindtodo.db"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[mounts]
+  source = "mindtodo_data"
+  destination = "/data"
