@@ -4,7 +4,7 @@ import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = process.env.DB_PATH || resolve(__dirname, '../data/mindtodo.db');
+const DB_PATH = process.env.DB_PATH || resolve(__dirname, '../data/simplytodo.db');
 
 // Ensure data directory exists
 mkdirSync(dirname(DB_PATH), { recursive: true });

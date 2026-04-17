@@ -233,7 +233,7 @@ export function exportPNG(nodes, showPriority, theme, expandText) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mindtodo-export.png`;
+    a.download = `simplytodo-export.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -250,7 +250,7 @@ export function exportMarkdown(nodes) {
   const tasks = nodes.filter((n) => n.type === 'task');
   const orphanTasks = tasks.filter((t) => !categories.some((c) => c.id === t.parent_id));
 
-  let md = '# MindTodo Export\n\n';
+  let md = '# SimplyTodo Export\n\n';
 
   for (const cat of categories) {
     md += `## ${cat.title}\n\n`;
@@ -282,7 +282,7 @@ export function exportMarkdown(nodes) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'mindtodo-export.md';
+  a.download = 'simplytodo-export.md';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

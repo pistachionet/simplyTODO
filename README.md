@@ -1,4 +1,4 @@
-# MindTodo
+# SimplyTodo
 
 A real-time, collaborative todo board rendered on an infinite HTML5 Canvas. Create sessions, share a code, and work together with live sync via WebSockets.
 
@@ -35,8 +35,8 @@ A real-time, collaborative todo board rendered on an infinite HTML5 Canvas. Crea
 ### Install
 
 ```bash
-git clone https://github.com/<your-username>/mindtodo.git
-cd mindtodo
+git clone https://github.com/pistachionet/simplyTODO.git
+cd simplyTODO
 npm install
 ```
 
@@ -63,10 +63,10 @@ The client is built into `dist/` and served by Fastify on port 3001.
 
 1. Install the [Fly CLI](https://fly.io/docs/flyctl/install/).
 2. Authenticate: `fly auth login`
-3. Create the app: `fly apps create mindtodo` (or pick your own name and update `fly.toml`).
+3. Create the app: `fly apps create simplytodo` (or pick your own name and update `fly.toml`).
 4. Create a persistent volume for the database:
    ```bash
-   fly volumes create mindtodo_data --region sjc --size 1
+   fly volumes create simplytodo_data --region sjc --size 1
    ```
 
 ### Deploy
@@ -118,7 +118,7 @@ fly ssh console     # SSH into the running machine
 | ---------- | ----------------------- | ----------------------------- |
 | `PORT`     | `3001`                  | Server listen port            |
 | `NODE_ENV` | —                       | Set to `production` for prod  |
-| `DB_PATH`  | `./data/mindtodo.db`    | Path to the SQLite database   |
+| `DB_PATH`  | `./data/simplytodo.db`  | Path to the SQLite database   |
 
 ## License
 

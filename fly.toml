@@ -1,13 +1,13 @@
 # See https://fly.io/docs/reference/configuration/
 
-app = "mindtodo"
+app = "simplytodo"
 primary_region = "sjc"
 
 [build]
 
 [env]
   NODE_ENV = "production"
-  DB_PATH = "/data/mindtodo.db"
+  DB_PATH = "/data/simplytodo.db"
 
 [http_service]
   internal_port = 3001
@@ -17,5 +17,5 @@ primary_region = "sjc"
   min_machines_running = 0
 
 [mounts]
-  source = "mindtodo_data"
+  source = "simplytodo_data"
   destination = "/data"
