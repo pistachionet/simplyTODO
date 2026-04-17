@@ -327,6 +327,45 @@ export default function Board() {
     [send, setContextMenu]
   );
 
+  // ── Fit-to-view ────────────────────────────────────────────────
+  const fitToView = useCallback(() => {
+    const allNodes = useStore.getState().nodes;
+    if (allNodes.length === 0) return;
+
+    const state = useStore.getState();
+    const sp = state.settings.showPriority;
+    const et = state.settings.expandText;
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const n of allNodes) {
+      if (n.type === 'category') {
+        minX = Math.min(minX, n.x - CATEGORY_WIDTH / 2);
+        maxX = Math.max(maxX, n.x + CATEGORY_WIDTH / 2);
+        minY = Math.min(minY, n.y - CATEGORY_HEIGHT / 2);
+        maxY = Math.max(maxY, n.y + CATEGORY_HEIGHT / 2);
+      } else {
+        const h = getTaskNodeHeight(n.title, n.completed, sp, !!n.priority, et);
+        minX = Math.min(minX, n.x);
+        maxX = Math.max(maxX, n.x + TASK_WIDTH);
+        minY = Math.min(minY, n.y - TASK_HEIGHT / 2);
+        maxY = Math.max(maxY, n.y - TASK_HEIGHT / 2 + h);
+      }
+    }
+
+    const padding = 80;
+    const bw = maxX - minX + padding * 2;
+    const bh = maxY - minY + padding * 2;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const zoom = Math.min(vw / bw, vh / bh, 2);
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+
+    const newCam = { x: vw / 2 - cx * zoom, y: vh / 2 - cy * zoom, zoom };
+    cameraRef.current = newCam;
+    setCamera(newCam);
+  }, [setCamera]);
+
   // ── Import Markdown ───────────────────────────────────────────
   const handleImport = useCallback(
     (categories) => {
@@ -479,45 +518,6 @@ export default function Board() {
       y: window.innerHeight / 2,
       zoom: 1.3,
     });
-  }, [setCamera]);
-
-  // ── Fit-to-view ────────────────────────────────────────────────
-  const fitToView = useCallback(() => {
-    const allNodes = useStore.getState().nodes;
-    if (allNodes.length === 0) return;
-
-    const state = useStore.getState();
-    const sp = state.settings.showPriority;
-    const et = state.settings.expandText;
-
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for (const n of allNodes) {
-      if (n.type === 'category') {
-        minX = Math.min(minX, n.x - CATEGORY_WIDTH / 2);
-        maxX = Math.max(maxX, n.x + CATEGORY_WIDTH / 2);
-        minY = Math.min(minY, n.y - CATEGORY_HEIGHT / 2);
-        maxY = Math.max(maxY, n.y + CATEGORY_HEIGHT / 2);
-      } else {
-        const h = getTaskNodeHeight(n.title, n.completed, sp, !!n.priority, et);
-        minX = Math.min(minX, n.x);
-        maxX = Math.max(maxX, n.x + TASK_WIDTH);
-        minY = Math.min(minY, n.y - TASK_HEIGHT / 2);
-        maxY = Math.max(maxY, n.y - TASK_HEIGHT / 2 + h);
-      }
-    }
-
-    const padding = 80;
-    const bw = maxX - minX + padding * 2;
-    const bh = maxY - minY + padding * 2;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const zoom = Math.min(vw / bw, vh / bh, 2);
-    const cx = (minX + maxX) / 2;
-    const cy = (minY + maxY) / 2;
-
-    const newCam = { x: vw / 2 - cx * zoom, y: vh / 2 - cy * zoom, zoom };
-    cameraRef.current = newCam;
-    setCamera(newCam);
   }, [setCamera]);
 
   // ── Keyboard shortcuts ────────────────────────────────────────

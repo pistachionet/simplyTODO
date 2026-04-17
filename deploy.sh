@@ -7,7 +7,7 @@ set -euo pipefail
 #   ./deploy.sh --skip-build # skip local build verification
 #   ./deploy.sh --dry-run    # build Docker image locally but don't push
 
-APP_NAME="mindtodo"
+APP_NAME="simplytodo"
 APP_URL="https://${APP_NAME}.fly.dev"
 
 # ── Defaults ───────────────────────────────────────────────────────────

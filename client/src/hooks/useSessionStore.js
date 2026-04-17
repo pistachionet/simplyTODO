@@ -3,7 +3,7 @@ import { create } from 'zustand';
 // Dark mode is global (not per-session) so it persists on the landing page
 function loadDarkMode() {
   try {
-    return localStorage.getItem('mindtodo_darkMode') === 'true';
+    return localStorage.getItem('simplytodo_darkMode') === 'true';
   } catch { return false; }
 }
 
@@ -38,7 +38,7 @@ export const useStore = create((set, get) => ({
     let settings = { showPriority: false, expandText: false };
     if (code) {
       try {
-        const stored = localStorage.getItem(`mindtodo_settings_${code}`);
+        const stored = localStorage.getItem(`simplytodo_settings_${code}`);
         if (stored) settings = { ...settings, ...JSON.parse(stored) };
       } catch { /* ignore */ }
     }
@@ -74,7 +74,7 @@ export const useStore = create((set, get) => ({
   setDarkMode: (dark) => {
     set({ darkMode: dark });
     try {
-      localStorage.setItem('mindtodo_darkMode', String(dark));
+      localStorage.setItem('simplytodo_darkMode', String(dark));
     } catch { /* ignore */ }
   },
 
@@ -86,7 +86,7 @@ export const useStore = create((set, get) => ({
     if (state.sessionCode) {
       try {
         localStorage.setItem(
-          `mindtodo_settings_${state.sessionCode}`,
+          `simplytodo_settings_${state.sessionCode}`,
           JSON.stringify(newSettings)
         );
       } catch { /* ignore */ }
