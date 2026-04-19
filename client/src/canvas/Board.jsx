@@ -309,8 +309,13 @@ export default function Board() {
     (screenX, screenY, worldX, worldY) => {
       const state = useStore.getState();
       const hit = hitTest(nodesRef.current, worldX, worldY, state.settings.showPriority, state.settings.expandText);
-      if (hit && hit.node && hit.node.type === 'task') {
-        setContextMenu({ x: screenX, y: screenY, nodeId: hit.node.id });
+      if (hit && hit.node && (hit.node.type === 'task' || hit.node.type === 'category')) {
+        setContextMenu({
+          x: screenX,
+          y: screenY,
+          nodeId: hit.node.id,
+          nodeType: hit.node.type,
+        });
       } else {
         setContextMenu(null);
       }
@@ -652,7 +657,24 @@ export default function Board() {
           x={contextMenu.x}
           y={contextMenu.y}
           nodeId={contextMenu.nodeId}
+          nodeType={contextMenu.nodeType}
+          node={nodes.find((n) => n.id === contextMenu.nodeId)}
           onSetPriority={handleSetPriority}
+          onRename={(nodeId) => {
+            const node = nodes.find((n) => n.id === nodeId);
+            if (node) handleStartEdit(node);
+            setContextMenu(null);
+          }}
+          onAddTask={(nodeId) => {
+            const node = nodes.find((n) => n.id === nodeId);
+            if (node) handleAddTask(node);
+            setContextMenu(null);
+          }}
+          onToggle={(nodeId) => {
+            const node = nodes.find((n) => n.id === nodeId);
+            if (node) handleToggle(node);
+            setContextMenu(null);
+          }}
           onDelete={(nodeId) => {
             const node = nodes.find((n) => n.id === nodeId);
             if (node) handleDelete(node);

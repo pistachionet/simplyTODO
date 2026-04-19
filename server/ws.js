@@ -1,28 +1,21 @@
 import { v4 as uuidv4 } from 'uuid';
-import {
-  sessionExists,
-  touchSession,
-  createNode,
-  updateNodePosition,
-  updateNodeTitle,
-  toggleNodeCompleted,
-  deleteNode,
-  updateNodePriority,
-} from './db.js';
 
-// Map of sessionCode -> Set<WebSocket>
+// Map of sessionCode -> Set<WebSocket>. Module-scoped because rooms
+// represent live network state, not persisted data. If you ever need
+// isolation per app instance (e.g. tests running in parallel), move
+// this into setupWebSocket's closure.
 const rooms = new Map();
 
-export function setupWebSocket(fastify) {
+export function setupWebSocket(fastify, db) {
   fastify.get('/ws/:sessionCode', { websocket: true }, (socket, request) => {
     const { sessionCode } = request.params;
 
-    if (!sessionExists(sessionCode)) {
+    if (!db.sessionExists(sessionCode)) {
       socket.close(4004, 'Session not found');
       return;
     }
 
-    touchSession(sessionCode);
+    db.touchSession(sessionCode);
 
     // Join room
     if (!rooms.has(sessionCode)) {
@@ -39,14 +32,14 @@ export function setupWebSocket(fastify) {
         return;
       }
 
-      touchSession(sessionCode);
+      db.touchSession(sessionCode);
       let result;
 
       try {
         switch (msg.type) {
           case 'node:create': {
             const id = msg.id || uuidv4();
-            const node = createNode({
+            const node = db.createNode({
               id,
               sessionCode,
               type: msg.nodeType || 'category',
@@ -59,7 +52,7 @@ export function setupWebSocket(fastify) {
             break;
           }
           case 'node:move': {
-            const node = updateNodePosition({
+            const node = db.updateNodePosition({
               id: msg.id,
               sessionCode,
               x: msg.x,
@@ -69,7 +62,7 @@ export function setupWebSocket(fastify) {
             break;
           }
           case 'node:rename': {
-            const node = updateNodeTitle({
+            const node = db.updateNodeTitle({
               id: msg.id,
               sessionCode,
               title: msg.title,
@@ -78,7 +71,7 @@ export function setupWebSocket(fastify) {
             break;
           }
           case 'node:toggle': {
-            const node = toggleNodeCompleted({
+            const node = db.toggleNodeCompleted({
               id: msg.id,
               sessionCode,
             });
@@ -86,7 +79,7 @@ export function setupWebSocket(fastify) {
             break;
           }
           case 'node:delete': {
-            const deleted = deleteNode({
+            const deleted = db.deleteNode({
               id: msg.id,
               sessionCode,
             });
@@ -94,7 +87,7 @@ export function setupWebSocket(fastify) {
             break;
           }
           case 'node:priority': {
-            const node = updateNodePriority({
+            const node = db.updateNodePriority({
               id: msg.id,
               sessionCode,
               priority: msg.priority || null,
@@ -137,4 +130,9 @@ export function setupWebSocket(fastify) {
 
 export function getRoomCount() {
   return rooms.size;
+}
+
+// Exposed for tests to reset shared room state between runs.
+export function _resetRooms() {
+  rooms.clear();
 }
