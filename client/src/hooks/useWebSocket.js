@@ -58,6 +58,9 @@ export function useWebSocket() {
         case 'node:priorityChanged':
           if (msg.node) updateNode(msg.node);
           break;
+        case 'node:colorChanged':
+          if (msg.node) updateNode(msg.node);
+          break;
       }
     };
 

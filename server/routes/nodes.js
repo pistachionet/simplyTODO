@@ -81,4 +81,18 @@ export default async function nodeRoutes(fastify, { db }) {
     if (!node) return { error: 'Node not found' };
     return { node };
   });
+
+  // Update node color
+  fastify.patch('/api/nodes/:sessionCode/:nodeId/color', async (request) => {
+    const { sessionCode, nodeId } = request.params;
+    const { color } = request.body;
+    // Allow null (clear) or a 3/6-char hex string
+    const hexRe = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+    if (color !== null && color !== undefined && !hexRe.test(color)) {
+      return { error: 'Invalid color. Use #rgb, #rrggbb, or null.' };
+    }
+    const node = db.updateNodeColor({ id: nodeId, sessionCode, color: color ?? null });
+    if (!node) return { error: 'Node not found' };
+    return { node };
+  });
 }

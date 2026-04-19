@@ -51,6 +51,7 @@ export default function Board() {
   const [editPos, setEditPos] = useState({ x: 0, y: 0, width: 0 });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const editInputRef = useRef(null);
 
   const { send } = useWebSocket();
@@ -123,11 +124,16 @@ export default function Board() {
         y,
         completed: 0,
         priority: null,
+        color: null,
       });
       setTimeout(() => {
         setEditingNodeId(id);
         setEditValue('New Category');
         updateEditPosition(id);
+        setTimeout(() => {
+          editInputRef.current?.focus();
+          editInputRef.current?.select();
+        }, 10);
       }, 50);
     },
     [send, sessionCode, setEditingNodeId, setContextMenu]
@@ -162,11 +168,16 @@ export default function Board() {
         y: taskY,
         completed: 0,
         priority: null,
+        color: null,
       });
       setTimeout(() => {
         setEditingNodeId(id);
         setEditValue('New Task');
         updateEditPosition(id);
+        setTimeout(() => {
+          editInputRef.current?.focus();
+          editInputRef.current?.select();
+        }, 10);
       }, 50);
     },
     [send, sessionCode, setEditingNodeId, setContextMenu]
@@ -290,7 +301,10 @@ export default function Board() {
       setEditingNodeId(node.id);
       setEditValue(node.title);
       updateEditPosition(node.id);
-      setTimeout(() => editInputRef.current?.focus(), 10);
+      setTimeout(() => {
+        editInputRef.current?.focus();
+        editInputRef.current?.select();
+      }, 10);
     },
     [setEditingNodeId, updateEditPosition, setContextMenu]
   );
@@ -327,6 +341,15 @@ export default function Board() {
     (nodeId, priority) => {
       send({ type: 'node:priority', id: nodeId, priority });
       useStore.getState().updateNode({ id: nodeId, priority });
+      setContextMenu(null);
+    },
+    [send, setContextMenu]
+  );
+
+  const handleSetColor = useCallback(
+    (nodeId, color) => {
+      send({ type: 'node:color', id: nodeId, color });
+      useStore.getState().updateNode({ id: nodeId, color });
       setContextMenu(null);
     },
     [send, setContextMenu]
@@ -425,6 +448,7 @@ export default function Board() {
           y: catY,
           completed: 0,
           priority: null,
+          color: null,
         });
 
         for (let ti = 0; ti < cat.tasks.length; ti++) {
@@ -452,6 +476,7 @@ export default function Board() {
             y: taskY,
             completed: task.completed ? 1 : 0,
             priority: task.priority,
+            color: null,
           });
 
           // Sync completed state if needed
@@ -644,6 +669,7 @@ export default function Board() {
             borderRadius: '6px',
             padding: '0 8px',
             background: 'var(--surface)',
+            color: 'var(--text)',
             zIndex: 100,
             outline: 'none',
           }}
@@ -660,6 +686,7 @@ export default function Board() {
           nodeType={contextMenu.nodeType}
           node={nodes.find((n) => n.id === contextMenu.nodeId)}
           onSetPriority={handleSetPriority}
+          onSetColor={handleSetColor}
           onRename={(nodeId) => {
             const node = nodes.find((n) => n.id === nodeId);
             if (node) handleStartEdit(node);
@@ -693,11 +720,15 @@ export default function Board() {
           <span style={styles.sessionLabel}>Session</span>
           <span style={styles.sessionCodeDisplay}>{sessionCode}</span>
           <button
-            onClick={() => navigator.clipboard.writeText(sessionCode)}
-            style={styles.copyBtn}
+            onClick={() => {
+              navigator.clipboard.writeText(sessionCode);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            }}
+            style={copied ? { ...styles.copyBtn, ...styles.copyBtnCopied } : styles.copyBtn}
             title="Copy code"
           >
-            Copy
+            {copied ? 'Copied!' : 'Copy'}
           </button>
         </div>
         <div style={styles.statusRow}>
@@ -833,6 +864,12 @@ const styles = {
     borderRadius: '6px',
     cursor: 'pointer',
     border: 'none',
+    transition: 'background 0.2s, color 0.2s, transform 0.2s',
+  },
+  copyBtnCopied: {
+    background: '#22c55e',
+    color: '#ffffff',
+    transform: 'scale(1.05)',
   },
   statusRow: {
     display: 'flex',

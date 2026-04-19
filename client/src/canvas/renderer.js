@@ -127,7 +127,12 @@ function drawCategoryNode(ctx, node, isSelected, isEditing, t) {
   ctx.shadowOffsetY = 2;
 
   // Background
-  ctx.fillStyle = isSelected ? t.categoryBgSelected : t.categoryBg;
+  // Custom color wins over selected/default.
+  if (node.color) {
+    ctx.fillStyle = node.color;
+  } else {
+    ctx.fillStyle = isSelected ? t.categoryBgSelected : t.categoryBg;
+  }
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, r);
   ctx.fill();
@@ -142,7 +147,8 @@ function drawCategoryNode(ctx, node, isSelected, isEditing, t) {
 
   // Title
   if (!isEditing) {
-    ctx.fillStyle = t.categoryText;
+    // Bold category colors are dark/saturated — force white text for contrast.
+    ctx.fillStyle = node.color ? '#ffffff' : t.categoryText;
     ctx.font = FONT_CATEGORY_TITLE;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -183,7 +189,14 @@ function drawTaskNode(ctx, node, isSelected, isEditing, showPriority, t, expandT
   ctx.shadowOffsetY = 1;
 
   // Background
-  ctx.fillStyle = node.completed ? t.taskBgDone : t.taskBg;
+  // Custom color (if set) wins over completed/default.
+  if (node.color) {
+    ctx.fillStyle = node.color;
+  } else if (node.completed) {
+    ctx.fillStyle = t.taskBgDone;
+  } else {
+    ctx.fillStyle = t.taskBg;
+  }
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, r);
   ctx.fill();
@@ -216,7 +229,7 @@ function drawTaskNode(ctx, node, isSelected, isEditing, showPriority, t, expandT
     ctx.lineTo(cbX + 5, cbY - 4);
     ctx.stroke();
   } else {
-    ctx.strokeStyle = t.checkboxBorder;
+    ctx.strokeStyle = node.color ? '#6b7280' : t.checkboxBorder;
     ctx.lineWidth = 1.5;
     ctx.stroke();
   }
@@ -254,7 +267,14 @@ function drawTaskNode(ctx, node, isSelected, isEditing, showPriority, t, expandT
   // Title
   if (!isEditing) {
     const font = node.completed ? FONT_TASK_TITLE_DONE : FONT_TASK_TITLE;
-    ctx.fillStyle = node.completed ? t.taskTextDone : t.taskText;
+    // When custom color is set (always a light pastel), force dark text for contrast.
+    let textColor;
+    if (node.color) {
+      textColor = node.completed ? '#6b7280' : '#1a1a1a';
+    } else {
+      textColor = node.completed ? t.taskTextDone : t.taskText;
+    }
+    ctx.fillStyle = textColor;
     ctx.font = font;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
@@ -272,7 +292,7 @@ function drawTaskNode(ctx, node, isSelected, isEditing, showPriority, t, expandT
 
         if (node.completed) {
           const tw = ctx.measureText(lines[i]).width;
-          ctx.strokeStyle = t.taskTextDone;
+          ctx.strokeStyle = textColor;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(textStartX, lineY);
@@ -287,7 +307,7 @@ function drawTaskNode(ctx, node, isSelected, isEditing, showPriority, t, expandT
       if (node.completed) {
         ctx.fillText(text, textStartX, node.y);
         const tw = ctx.measureText(text).width;
-        ctx.strokeStyle = t.taskTextDone;
+        ctx.strokeStyle = textColor;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(textStartX, node.y);

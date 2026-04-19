@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { NODE_COLORS, CATEGORY_COLORS } from './constants.js';
 
 const PRIORITIES = [
   { value: 'high', label: 'High', color: '#dc2626' },
@@ -36,6 +37,7 @@ export default function ContextMenu({
   onAddTask,
   onToggle,
   onSetPriority,
+  onSetColor,
   onDelete,
   onClose,
 }) {
@@ -61,13 +63,16 @@ export default function ContextMenu({
   }, [onClose]);
 
   // Adjust position so menu doesn't overflow viewport
-  const menuWidth = 200;
-  const menuHeight = nodeType === 'task' ? 320 : 180;
+  const menuWidth = 220;
+  const menuHeight = nodeType === 'task' ? 420 : 280;
   const adjustedX = Math.min(x, window.innerWidth - menuWidth - 8);
   const adjustedY = Math.min(y, window.innerHeight - menuHeight - 8);
 
   const currentPriority = node?.priority ?? null;
+  const currentColor = node?.color ?? null;
   const isCompleted = !!node?.completed;
+  const isCategory = nodeType === 'category';
+  const palette = isCategory ? CATEGORY_COLORS : NODE_COLORS;
 
   return (
     <div
@@ -154,6 +159,36 @@ export default function ContextMenu({
               </button>
             );
           })}
+        </>
+      )}
+
+      {/* ── Color swatches (both tasks and categories) ──── */}
+      {onSetColor && (
+        <>
+          <div style={styles.separator} />
+          <div style={styles.sectionLabel}>Color</div>
+          <div style={styles.swatchGrid}>
+            {palette.map((c) => {
+              const selected = c.value === currentColor;
+              const isNull = c.value === null;
+              return (
+                <button
+                  key={c.label}
+                  onClick={() => onSetColor?.(nodeId, c.value)}
+                  title={c.label}
+                  style={{
+                    ...styles.swatch,
+                    background: isNull ? 'transparent' : c.swatch,
+                    border: selected
+                      ? '2px solid var(--accent, #2563eb)'
+                      : '1px solid var(--border, #e5e7eb)',
+                  }}
+                >
+                  {isNull && <span style={styles.swatchNull}>×</span>}
+                </button>
+              );
+            })}
+          </div>
         </>
       )}
 
@@ -267,5 +302,26 @@ const styles = {
     marginLeft: 'auto',
     fontSize: '13px',
     color: '#6b7280',
+  },
+  swatchGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(8, 1fr)',
+    gap: '4px',
+    padding: '4px 14px 8px',
+  },
+  swatch: {
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    cursor: 'pointer',
+    padding: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  swatchNull: {
+    fontSize: '14px',
+    color: '#9ca3af',
+    lineHeight: 1,
   },
 };

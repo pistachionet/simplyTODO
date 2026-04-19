@@ -39,6 +39,32 @@ export const PRIORITY_COLORS = {
   low:    { bg: '#eff6ff', border: '#93c5fd', text: '#2563eb' },
 };
 
+// ── Node Color Palette ───────────────────────────────────────────
+// User-selectable background colors for task nodes (pastels).
+// `value` is persisted to DB (hex) or null for theme default.
+export const NODE_COLORS = [
+  { value: null,      label: 'Default', swatch: 'transparent' },
+  { value: '#fecaca', label: 'Red',     swatch: '#fecaca' },
+  { value: '#fed7aa', label: 'Orange',  swatch: '#fed7aa' },
+  { value: '#fef08a', label: 'Yellow',  swatch: '#fef08a' },
+  { value: '#bbf7d0', label: 'Green',   swatch: '#bbf7d0' },
+  { value: '#bae6fd', label: 'Blue',    swatch: '#bae6fd' },
+  { value: '#ddd6fe', label: 'Purple',  swatch: '#ddd6fe' },
+  { value: '#fbcfe8', label: 'Pink',    swatch: '#fbcfe8' },
+];
+
+// Bolder, saturated versions for category nodes (same hues as NODE_COLORS).
+export const CATEGORY_COLORS = [
+  { value: null,      label: 'Default', swatch: 'transparent' },
+  { value: '#ef4444', label: 'Red',     swatch: '#ef4444' },
+  { value: '#f97316', label: 'Orange',  swatch: '#f97316' },
+  { value: '#eab308', label: 'Yellow',  swatch: '#eab308' },
+  { value: '#22c55e', label: 'Green',   swatch: '#22c55e' },
+  { value: '#3b82f6', label: 'Blue',    swatch: '#3b82f6' },
+  { value: '#8b5cf6', label: 'Purple',  swatch: '#8b5cf6' },
+  { value: '#ec4899', label: 'Pink',    swatch: '#ec4899' },
+];
+
 // ── Canvas Theme Colors ──────────────────────────────────────────
 // These drive the canvas renderer (CSS variables can't reach <canvas>)
 

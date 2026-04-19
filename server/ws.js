@@ -95,6 +95,15 @@ export function setupWebSocket(fastify, db) {
             result = { type: 'node:priorityChanged', node };
             break;
           }
+          case 'node:color': {
+            const node = db.updateNodeColor({
+              id: msg.id,
+              sessionCode,
+              color: msg.color || null,
+            });
+            result = { type: 'node:colorChanged', node };
+            break;
+          }
           default:
             socket.send(JSON.stringify({ error: `Unknown message type: ${msg.type}` }));
             return;

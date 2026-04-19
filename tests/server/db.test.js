@@ -115,6 +115,19 @@ describe('nodes', () => {
     expect(n.priority).toBeNull();
   });
 
+  it('new nodes have null color by default', () => {
+    const n = db.createNode({ id: 'n1', sessionCode: 'SESS01', type: 'task', parentId: null, title: 'T', x: 0, y: 0 });
+    expect(n.color).toBeNull();
+  });
+
+  it('updateNodeColor sets and clears color', () => {
+    db.createNode({ id: 'n1', sessionCode: 'SESS01', type: 'task', parentId: null, title: 'T', x: 0, y: 0 });
+    let n = db.updateNodeColor({ id: 'n1', sessionCode: 'SESS01', color: '#fecaca' });
+    expect(n.color).toBe('#fecaca');
+    n = db.updateNodeColor({ id: 'n1', sessionCode: 'SESS01', color: null });
+    expect(n.color).toBeNull();
+  });
+
   it('deleteNode removes node and reports cascaded children', () => {
     db.createNode({ id: 'parent', sessionCode: 'SESS01', type: 'category', parentId: null, title: 'P', x: 0, y: 0 });
     db.createNode({ id: 'c1', sessionCode: 'SESS01', type: 'task', parentId: 'parent', title: 'C1', x: 0, y: 0 });

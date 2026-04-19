@@ -60,6 +60,13 @@ export function createDb(dbPath = DEFAULT_DB_PATH) {
     // Column already exists, ignore
   }
 
+  // ── Migration: add color column if missing ───────────────────────
+  try {
+    db.exec(`ALTER TABLE nodes ADD COLUMN color TEXT DEFAULT NULL`);
+  } catch {
+    // Column already exists, ignore
+  }
+
   // ── Prepared Statements ────────────────────────────────────────────
   const stmts = {
     createSession: db.prepare(`INSERT INTO sessions (code) VALUES (?)`),
@@ -99,6 +106,9 @@ export function createDb(dbPath = DEFAULT_DB_PATH) {
     ),
     updateNodePriority: db.prepare(
       `UPDATE nodes SET priority = ? WHERE id = ? AND session_code = ?`
+    ),
+    updateNodeColor: db.prepare(
+      `UPDATE nodes SET color = ? WHERE id = ? AND session_code = ?`
     ),
   };
 
@@ -164,6 +174,11 @@ export function createDb(dbPath = DEFAULT_DB_PATH) {
     return stmts.getNode.get(id, sessionCode);
   }
 
+  function updateNodeColor({ id, sessionCode, color }) {
+    stmts.updateNodeColor.run(color, id, sessionCode);
+    return stmts.getNode.get(id, sessionCode);
+  }
+
   function close() {
     db.close();
   }
@@ -183,6 +198,7 @@ export function createDb(dbPath = DEFAULT_DB_PATH) {
     deleteNode,
     getNode,
     updateNodePriority,
+    updateNodeColor,
     close,
   };
 }
