@@ -144,8 +144,8 @@ export function createGestureHandlers(canvas, getCamera, setCamera, callbacks) {
 
       const hit = callbacks.onHitTest(world.x, world.y);
 
-      // Start long-press timer for task context menu
-      if (hit && hit.node && hit.node.type === 'task') {
+      // Start long-press timer for any node (category or task)
+      if (hit && hit.node && (hit.node.type === 'task' || hit.node.type === 'category')) {
         longPressTimer = setTimeout(() => {
           longPressFired = true;
           isDragging = false;

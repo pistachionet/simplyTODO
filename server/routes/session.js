@@ -1,5 +1,3 @@
-import { createSession, sessionExists, touchSession, getNodesBySession } from '../db.js';
-
 // Generate a random 6-char alphanumeric code (A-Z, 0-9)
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed ambiguous: 0/O, 1/I
@@ -10,7 +8,7 @@ function generateCode() {
   return code;
 }
 
-export default async function sessionRoutes(fastify) {
+export default async function sessionRoutes(fastify, { db }) {
   // Create a new session
   fastify.post('/api/session/create', async (request, reply) => {
     let code;
@@ -22,9 +20,9 @@ export default async function sessionRoutes(fastify) {
       if (attempts > 100) {
         return reply.status(500).send({ error: 'Could not generate unique session code' });
       }
-    } while (sessionExists(code));
+    } while (db.sessionExists(code));
 
-    createSession(code);
+    db.createSession(code);
     return { code };
   });
 
@@ -36,12 +34,12 @@ export default async function sessionRoutes(fastify) {
     }
 
     const upperCode = code.toUpperCase();
-    if (!sessionExists(upperCode)) {
+    if (!db.sessionExists(upperCode)) {
       return reply.status(404).send({ error: 'Session not found' });
     }
 
-    touchSession(upperCode);
-    const nodes = getNodesBySession(upperCode);
+    db.touchSession(upperCode);
+    const nodes = db.getNodesBySession(upperCode);
     return { code: upperCode, nodes };
   });
 }

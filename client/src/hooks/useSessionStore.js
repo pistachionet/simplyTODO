@@ -28,14 +28,14 @@ export const useStore = create((set, get) => ({
 
   // Settings (persisted to localStorage per session)
   settings: {
-    showPriority: false,
+    showPriority: true,
     expandText: false,
   },
 
   // Actions
   setSessionCode: (code) => {
     // Load settings from localStorage when joining a session
-    let settings = { showPriority: false, expandText: false };
+    let settings = { showPriority: true, expandText: false };
     if (code) {
       try {
         const stored = localStorage.getItem(`simplytodo_settings_${code}`);

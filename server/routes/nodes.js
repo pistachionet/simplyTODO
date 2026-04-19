@@ -1,32 +1,21 @@
 import { v4 as uuidv4 } from 'uuid';
-import {
-  createNode,
-  getNodesBySession,
-  updateNodePosition,
-  updateNodeTitle,
-  toggleNodeCompleted,
-  deleteNode,
-  updateNodePriority,
-  touchSession,
-  sessionExists,
-} from '../db.js';
 
-export default async function nodeRoutes(fastify) {
+export default async function nodeRoutes(fastify, { db }) {
   // Middleware: validate session exists and touch it
   fastify.addHook('preHandler', async (request, reply) => {
     const sessionCode = request.params.sessionCode || request.body?.sessionCode;
-    if (sessionCode && !sessionExists(sessionCode)) {
+    if (sessionCode && !db.sessionExists(sessionCode)) {
       return reply.status(404).send({ error: 'Session not found' });
     }
     if (sessionCode) {
-      touchSession(sessionCode);
+      db.touchSession(sessionCode);
     }
   });
 
   // Get all nodes for a session
   fastify.get('/api/nodes/:sessionCode', async (request) => {
     const { sessionCode } = request.params;
-    const nodes = getNodesBySession(sessionCode);
+    const nodes = db.getNodesBySession(sessionCode);
     return { nodes };
   });
 
@@ -35,7 +24,7 @@ export default async function nodeRoutes(fastify) {
     const { sessionCode } = request.params;
     const { type, parentId, title, x, y } = request.body;
     const id = uuidv4();
-    const node = createNode({
+    const node = db.createNode({
       id,
       sessionCode,
       type: type || 'category',
@@ -51,7 +40,7 @@ export default async function nodeRoutes(fastify) {
   fastify.patch('/api/nodes/:sessionCode/:nodeId/position', async (request) => {
     const { sessionCode, nodeId } = request.params;
     const { x, y } = request.body;
-    const node = updateNodePosition({ id: nodeId, sessionCode, x, y });
+    const node = db.updateNodePosition({ id: nodeId, sessionCode, x, y });
     if (!node) return { error: 'Node not found' };
     return { node };
   });
@@ -60,7 +49,7 @@ export default async function nodeRoutes(fastify) {
   fastify.patch('/api/nodes/:sessionCode/:nodeId/title', async (request) => {
     const { sessionCode, nodeId } = request.params;
     const { title } = request.body;
-    const node = updateNodeTitle({ id: nodeId, sessionCode, title });
+    const node = db.updateNodeTitle({ id: nodeId, sessionCode, title });
     if (!node) return { error: 'Node not found' };
     return { node };
   });
@@ -68,7 +57,7 @@ export default async function nodeRoutes(fastify) {
   // Toggle node completed
   fastify.patch('/api/nodes/:sessionCode/:nodeId/toggle', async (request) => {
     const { sessionCode, nodeId } = request.params;
-    const node = toggleNodeCompleted({ id: nodeId, sessionCode });
+    const node = db.toggleNodeCompleted({ id: nodeId, sessionCode });
     if (!node) return { error: 'Node not found' };
     return { node };
   });
@@ -76,7 +65,7 @@ export default async function nodeRoutes(fastify) {
   // Delete a node
   fastify.delete('/api/nodes/:sessionCode/:nodeId', async (request) => {
     const { sessionCode, nodeId } = request.params;
-    const result = deleteNode({ id: nodeId, sessionCode });
+    const result = db.deleteNode({ id: nodeId, sessionCode });
     return result;
   });
 
@@ -88,7 +77,7 @@ export default async function nodeRoutes(fastify) {
     if (!validPriorities.includes(priority)) {
       return { error: 'Invalid priority. Use high, medium, low, or null.' };
     }
-    const node = updateNodePriority({ id: nodeId, sessionCode, priority });
+    const node = db.updateNodePriority({ id: nodeId, sessionCode, priority });
     if (!node) return { error: 'Node not found' };
     return { node };
   });
