@@ -127,6 +127,38 @@ describe('PATCH node endpoints', () => {
     });
     expect(res.json().error).toMatch(/Invalid priority/);
   });
+
+  it('sets valid hex color', async () => {
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/api/nodes/${SESSION}/${nodeId}/color`,
+      payload: { color: '#fecaca' },
+    });
+    expect(res.json().node.color).toBe('#fecaca');
+  });
+
+  it('clears color with null', async () => {
+    await app.inject({
+      method: 'PATCH',
+      url: `/api/nodes/${SESSION}/${nodeId}/color`,
+      payload: { color: '#fecaca' },
+    });
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/api/nodes/${SESSION}/${nodeId}/color`,
+      payload: { color: null },
+    });
+    expect(res.json().node.color).toBeNull();
+  });
+
+  it('rejects invalid color', async () => {
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/api/nodes/${SESSION}/${nodeId}/color`,
+      payload: { color: 'red' },
+    });
+    expect(res.json().error).toMatch(/Invalid color/);
+  });
 });
 
 describe('DELETE /api/nodes/:sessionCode/:nodeId', () => {

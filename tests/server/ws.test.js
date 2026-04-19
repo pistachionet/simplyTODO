@@ -133,4 +133,24 @@ describe('WebSocket /ws/:sessionCode', () => {
     expect(msg.error).toMatch(/Unknown message type/);
     ws.close();
   });
+
+  it('broadcasts node:colorChanged on node:color', async () => {
+    db.createNode({
+      id: 'seed',
+      sessionCode: SESSION,
+      type: 'task',
+      parentId: null,
+      title: 'Seed',
+      x: 0,
+      y: 0,
+    });
+
+    const ws = await openWs(`${baseUrl}/ws/${SESSION}`);
+    const msgP = nextMessage(ws);
+    ws.send(JSON.stringify({ type: 'node:color', id: 'seed', color: '#fecaca' }));
+    const msg = await msgP;
+    expect(msg.type).toBe('node:colorChanged');
+    expect(msg.node.color).toBe('#fecaca');
+    ws.close();
+  });
 });
